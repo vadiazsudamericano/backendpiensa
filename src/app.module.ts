@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
@@ -10,14 +11,15 @@ import { Photo } from './gallery/photo.entity';
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
+      url: process.env.DATABASE_URL,
       port: 5432,
       username: 'postgres',         // <- reemplaza esto
-      password: '090306',      // <- y esto
-      database: 'loginp_db',   // <- y esto también
-      entities: [User, Photo],
-      synchronize: true,
+      password: 'XZDxwzPvlQrbwsqLaIvgTdpPxojYQZOn',      // <- y esto
+      database: 'railway',   // <- y esto también
+      entities: [__dirname + `/**/*.entity{.ts,.js}`],
+      synchronize: true
     }),
+    ConfigModule.forRoot({ isGlobal: true }),
     UsersModule,
     AuthModule,
     GalleryModule,

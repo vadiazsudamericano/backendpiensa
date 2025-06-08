@@ -9,20 +9,17 @@ import { Photo } from './gallery/photo.entity';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }), // ← Esto debe ir antes que se use `process.env`
     TypeOrmModule.forRoot({
       type: 'postgres',
-      url: process.env.DATABASE_URL,
-      port: 5432,
-      username: 'postgres',         // <- reemplaza esto
-      password: 'XZDxwzPvlQrbwsqLaIvgTdpPxojYQZOn',      // <- y esto
-      database: 'railway',   // <- y esto también
-      entities: [__dirname + `/**/*.entity{.ts,.js}`],
-      synchronize: true
+      url: process.env.DATABASE_URL, // Railway te da esta URL
+      autoLoadEntities: true,
+      synchronize: true,
     }),
-    ConfigModule.forRoot({ isGlobal: true }),
     UsersModule,
     AuthModule,
     GalleryModule,
   ],
 })
 export class AppModule {}
+

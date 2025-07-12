@@ -2,19 +2,39 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
-import * as bcrypt from 'bcrypt';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectRepository(User) private repo: Repository<User>) {}
+  constructor(
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
+  ) {}
 
-  async create(username: string, password: string) {
-    const hashed = await bcrypt.hash(password, 10);
-    const user = this.repo.create({ username, password: hashed });
-    return this.repo.save(user);
+  // Método para crear un nuevo usuario
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    const user = this.usersRepository.create(createUserDto);
+    return this.usersRepository.save(user);
   }
 
-  async findByUsername(username: string) {
-    return this.repo.findOne({ where: { username } });
+  // Método para obtener todos los usuarios
+  async findAll(): Promise<User[]> {
+    return this.usersRepository.find();
   }
+
+  // Método para obtener un usuario por su ID
+  async findById(id: number): Promise<User | null> {
+    return this.usersRepository.findOne({
+      where: { id },  // Usamos el objeto con el campo 'id'
+    });
+  }
+
+  // Método para obtener un usuario por su nombre de usuario
+  async findOneByUsername(username: string): Promise<User | null> {
+    return this.usersRepository.findOne({
+      where: { username },  // Usamos el objeto con el campo 'username'
+    });
+  }
+
+  // Otros métodos como crear, actualizar, etc.
 }

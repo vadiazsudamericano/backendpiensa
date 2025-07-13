@@ -1,22 +1,16 @@
-// RUTA: [Tu Proyecto de Backend]/src/main.ts
-
+// RUTA: src/main.ts (BACKEND)
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors({ origin: true });
 
-  // --- ESTE ES EL BLOQUE IMPORTANTE ---
-  // Habilitamos CORS para permitir peticiones desde otros dominios.
-  app.enableCors({
-    // Para la demo, puedes usar 'true' que permite cualquier origen.
-    // Para máxima seguridad en producción, deberías usar la URL de tu Vercel.
-    origin: 'https://medicleanfrontend.vercel.app', // Alternativa más segura
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
-  });
-
-  // Escucha en el puerto que le asigne Railway, o en el 3000 si es local.
+  // ESTA ES LA LÍNEA CLAVE
+  // Le decimos: "Usa el puerto que Railway te dé en process.env.PORT,
+  // y si no existe (porque estamos en local), usa el puerto 3000".
   await app.listen(process.env.PORT || 3000);
+  
+  console.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();

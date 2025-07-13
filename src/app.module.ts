@@ -1,36 +1,28 @@
+// RUTA: src/app.module.ts (BACKEND)
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { HerramientaModule } from './herramienta/herramienta.module';
-import { RegistroModule } from './registro-herramienta/registro-herramienta.module';
-import { UsersModule } from './users/users.module';
-import { AuthModule } from './auth/auth.module';
-import { GalleryModule } from './gallery/gallery.module';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
-    RegistroModule,
-    HerramientaModule,
-    ConfigModule.forRoot({ isGlobal: true }), // Carga global de variables de entorno
+    ConfigModule.forRoot(), // Asegúrate de tener esto para que process.env funcione bien
     TypeOrmModule.forRoot({
-  type: 'postgres',
-  host: 'interchange.proxy.rlwy.net',
-  port: 14337,
-  username: 'postgres',
-  password: 'XZDxwzPvlQrbwsqLaIvgTdpPxojYQZOn',
-  database: 'railway',
-  synchronize: true, // para evitar cambios automáticos en las tablas
-  autoLoadEntities: true,
-}),
-    UsersModule,
-    AuthModule,
-    GalleryModule,
-    RegistroModule,
-    HerramientaModule
+      type: 'postgres',
+      
+      // ESTA ES LA CONFIGURACIÓN CLAVE PARA RAILWAY
+      // Le decimos que tome toda la configuración de la variable de entorno DATABASE_URL
+      url: process.env.DATABASE_URL,
+      
+      // Es importante en producción añadir la configuración SSL
+      ssl: {
+        rejectUnauthorized: false,
+      },
+
+      autoLoadEntities: true,
+      synchronize: true, // ¡CUIDADO! synchronize: true es bueno para desarrollo pero riesgoso en producción
+    }),
+    // ... tus otros módulos (UsersModule, AuthModule, etc.)
   ],
+  // ...
 })
-export class AppModule {
-  constructor() {
-    console.log('✅ DATABASE_URL:', process.env.DATABASE_URL); // debe mostrar la URL completa
-  }
-}
+export class AppModule {}

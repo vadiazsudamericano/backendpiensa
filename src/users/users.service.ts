@@ -30,9 +30,9 @@ export class UsersService {
   }
 
   // Método para obtener un usuario por su nombre de usuario
-  async findOneByUsername(username: string): Promise<User | null> {
+  async findOneByEmail(email: string): Promise<User | null> {
     return this.usersRepository.findOne({
-      where: { username },  // Usamos el objeto con el campo 'username'
+      where: { email },  // Usamos el objeto con el campo 'email'
     });
   }
 

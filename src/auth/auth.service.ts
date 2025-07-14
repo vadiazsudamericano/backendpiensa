@@ -6,6 +6,7 @@ import { LoginDto } from 'src/users/dto/login.dto';
 import { User } from 'src/users/user.entity';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import * as bcrypt from 'bcrypt'; // Importa bcrypt
+import { use } from 'passport';
 
 @Injectable()
 export class AuthService {
@@ -16,25 +17,24 @@ export class AuthService {
 
   // Método para registrar un nuevo usuario
   async register(createUserDto: CreateUserDto) {
-  const { username, password, role, email } = createUserDto;
+  const { email, password, role } = createUserDto;
 
   // Encriptar la contraseña antes de guardarla
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const user = await this.usersService.create({
-    username,
+    email,
     password: hashedPassword,
     role,
-    email,  // Pasamos el email también
   });
 
   return user;
   }
 
   // Método para validar las credenciales
-  async validateUser(username: string, password: string): Promise<User | null> {
-  // 1. Busca al usuario por su username (email)
-  const user = await this.usersService.findOneByUsername(username);
+  async validateUser(email: string, password: string): Promise<User | null> {
+  // 1. Busca al usuario por su email
+  const user = await this.usersService.findOneByEmail(email);
 
   // 2. Si el usuario existe Y la contraseña coincide...
   if (user && bcrypt.compareSync(password, user.password)) {
@@ -48,7 +48,7 @@ export class AuthService {
 
   // Método para generar el token JWT
   async login(user: User) {
-    const payload = { username: user.username, sub: user.id, role: user.role };
+    const payload = { email: user.email, sub: user.id, role: user.role };
     return {
       access_token: this.jwtService.sign(payload),
     };

@@ -1,40 +1,28 @@
 # --- ETAPA 1: CONSTRUCCIÓN ---
-# Usamos una imagen oficial de Node.js v18. La llamamos "builder"
-FROM node:18-alpine AS builder
+# Usamos Node 20, que es lo que tus dependencias prefieren
+FROM node:20-alpine AS builder
 
-# Establecemos el directorio de trabajo
 WORKDIR /app
-
-# Copiamos los archivos de dependencias
 COPY package*.json ./
 
-# Instalamos TODAS las dependencias para poder compilar
-RUN npm install
+# Usamos la bandera que reduce el consumo de memoria
+RUN npm install --legacy-peer-deps
 
-# Copiamos el resto del código
 COPY . .
-
-# ¡EL PASO CLAVE! Creamos la carpeta /dist
 RUN npm run build
 
 
 # --- ETAPA 2: PRODUCCIÓN ---
-# Empezamos desde una imagen limpia de Node.js
-FROM node:18-alpine
+# Usamos Node 20 también en la imagen final
+FROM node:20-alpine
 
 WORKDIR /app
-
-# Copiamos solo los archivos de dependencias
 COPY package*.json ./
 
-# Instalamos solo las dependencias de PRODUCCIÓN
-RUN npm install --only=production
+# Aquí también podemos usar la bandera por consistencia
+RUN npm install --only=production --legacy-peer-deps
 
-# Copiamos la carpeta 'dist' ya compilada desde la etapa 'builder'
 COPY --from=builder /app/dist ./dist
 
-# Exponemos el puerto 3000
 EXPOSE 3000
-
-# El comando para iniciar la aplicación. Como /dist existe, esto funcionará.
 CMD ["node", "dist/main"]

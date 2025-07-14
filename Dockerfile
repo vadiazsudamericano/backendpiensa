@@ -6,7 +6,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Usamos la bandera que reduce el consumo de memoria
-RUN npm install --legacy-peer-deps
+RUN npm ci --legacy-peer-deps
 
 COPY . .
 RUN npm run build

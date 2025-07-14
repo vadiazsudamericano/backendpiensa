@@ -1,28 +1,35 @@
-// RUTA: src/app.module.ts (BACKEND)
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { AppController } from './app.controller'; // Importa los que faltan
+import { AppService } from './app.service';     // Importa los que faltan
 
 @Module({
   imports: [
-    ConfigModule.forRoot(), // Asegúrate de tener esto para que process.env funcione bien
+    ConfigModule.forRoot({
+      isGlobal: true, // Es una buena práctica hacerlo global para no re-importar
+    }),
+    
     TypeOrmModule.forRoot({
       type: 'postgres',
-      
-      // ESTA ES LA CONFIGURACIÓN CLAVE PARA RAILWAY
-      // Le decimos que tome toda la configuración de la variable de entorno DATABASE_URL
       url: process.env.DATABASE_URL,
-      
-      // Es importante en producción añadir la configuración SSL
       ssl: {
         rejectUnauthorized: false,
       },
-
       autoLoadEntities: true,
-      synchronize: true, // ¡CUIDADO! synchronize: true es bueno para desarrollo pero riesgoso en producción
+      synchronize: true, // En desarrollo está bien
     }),
-    // ... tus otros módulos (UsersModule, AuthModule, etc.)
+
+    // --- ¡AQUÍ ESTÁ LA CORRECCIÓN CLAVE! ---
+    // Registra tus módulos aquí para que la aplicación los reconozca.
+    AuthModule,
+    UsersModule,
   ],
-  // ...
+  
+  // Es una buena práctica mantener el controlador y servicio raíz si existen
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
